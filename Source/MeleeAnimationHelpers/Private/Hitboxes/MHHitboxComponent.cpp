@@ -28,7 +28,12 @@ void UMHHitboxComponent::HandleHitboxOverlap(UPrimitiveComponent* OverlappedComp
 	OnHitboxOverlapped.Broadcast(OverlappedComponent, OtherComp, OtherActor);
 }
 
-void UMHHitboxComponent::DestroyHitbox(const UShapeComponent* Hitbox)
+void UMHHitboxComponent::ClearHitActors()
+{
+	HitObjects.Reset();
+}
+
+void UMHHitboxComponent::DestroyHitbox(UShapeComponent* Hitbox)
 {
 	if (!Hitbox)
 	{
@@ -38,7 +43,7 @@ void UMHHitboxComponent::DestroyHitbox(const UShapeComponent* Hitbox)
 	bool OwnsHitbox = false;
 	for (int i = SpawnedHitboxes.Num() - 1; i >= 0; --i)
 	{
-		if (SpawnedHitboxes[i] == Hitbox)
+		if (SpawnedHitboxes[i].Get() == Hitbox)
 		{
 			OwnsHitbox = true;
 			SpawnedHitboxes.RemoveAt(i);
@@ -51,7 +56,7 @@ void UMHHitboxComponent::DestroyHitbox(const UShapeComponent* Hitbox)
 		return;
 	}
 	
-	DestroyComponent(Hitbox);
+	Hitbox->DestroyComponent();
 }
 
 UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxParameters& HitboxParameters)
@@ -83,14 +88,14 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	{
 	case Box:
 		{
-			UBoxComponent* Box = NewObject<UBoxComponent>(this);
+			UBoxComponent* Box = NewObject<UBoxComponent>(this, "Hitbox");
 			Box->SetBoxExtent(HitboxParameters.BoxExtents);
 			SpawnedShape = Box;
 			break;
 		}
 	case Capsule:
 		{
-			UCapsuleComponent* Capsule = NewObject<UCapsuleComponent>(this);
+			UCapsuleComponent* Capsule = NewObject<UCapsuleComponent>(this, "Hitbox");
 			Capsule->SetCapsuleRadius(HitboxParameters.Radius);
 			Capsule->SetCapsuleHalfHeight(HitboxParameters.HalfHeight);
 			SpawnedShape = Capsule;
@@ -99,7 +104,7 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	default:
 	case Sphere:
 		{
-			USphereComponent* Sphere = NewObject<USphereComponent>(this);
+			USphereComponent* Sphere = NewObject<USphereComponent>(this, "Hitbox");
 			Sphere->SetSphereRadius(HitboxParameters.Radius);
 			SpawnedShape = Sphere;
 			break;
@@ -108,7 +113,8 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	SpawnedShape->SetGenerateOverlapEvents(true);
 	const FAttachmentTransformRules AttachmentTransformRules = FAttachmentTransformRules::SnapToTargetIncludingScale;
 	SpawnedShape->AttachToComponent(SkeletalMesh, AttachmentTransformRules);
-	SpawnedShape->SetRelativeLocationAndRotation(HitboxParameters.Position, HitboxParameters.Rotation);
+	FMatrix HitboxTransformMatrix = CalculatePivotMatrix(HitboxParameters);
+	SpawnedShape->SetRelativeLocationAndRotation(HitboxTransformMatrix.TransformPosition(FVector::ZeroVector) + HitboxParameters.Position, HitboxTransformMatrix.Rotator());
 	
 	// Set the collision type, but make the object type dynamic
 	SpawnedShape->SetCollisionProfileName(CollisionProfile.Name);

@@ -7,6 +7,7 @@
 #include "Hitboxes/MHHitboxComponent.h"
 #include "Logging/StructuredLog.h"
 #include "Utility/MHDrawingHelpers.h"
+#include "Components/ShapeComponent.h"
 
 void UAnimNotifyState_MHHitbox::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	const float TotalDuration, const FAnimNotifyEventReference& EventReference)
@@ -28,7 +29,7 @@ void UAnimNotifyState_MHHitbox::NotifyBegin(USkeletalMeshComponent* MeshComp, UA
 		return;
 	}
 
-	SpawnedHitbox = HitboxComponent->SpawnHitbox(HitboxParameters);
+	SpawnedHitbox = MakeWeakObjectPtr(HitboxComponent->SpawnHitbox(HitboxParameters));
 }
 
 void UAnimNotifyState_MHHitbox::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -57,7 +58,7 @@ void UAnimNotifyState_MHHitbox::NotifyEnd(USkeletalMeshComponent* MeshComp, UAni
 	}
 	
 	HitboxComponent->DestroyHitbox(SpawnedHitbox.Get());
-	SpawnedHitbox = nullptr;
+	SpawnedHitbox.Reset();
 }
 
 #if WITH_EDITOR
@@ -90,12 +91,11 @@ void UAnimNotifyState_MHHitbox::DrawInEditor(FPrimitiveDrawInterface* PDI, USkel
 	const float EndTime = NotifyEvent.GetEndTriggerTime();
 	const UAnimMontage* CurrentMontage = Cast<UAnimMontage>(Animation);
 	const float CurrentTime = CurrentMontage ? MeshComp->GetAnimInstance()->Montage_GetPosition(CurrentMontage) : -1.0f;
-	FVector CurrentPosition = HitboxParameters.Position;
+	FVector CurrentPosition = FVector::ZeroVector;
 	
 	if (CurrentMontage)
 	{
-		const FVector RootPositionOffset =  UE::Anim::ExtractRootMotionFromAnimationAsset(CurrentMontage, nullptr, 0.0f, CurrentTime).GetLocation();
-		CurrentPosition += RootPositionOffset;
+		CurrentPosition = UE::Anim::ExtractRootMotionFromAnimationAsset(CurrentMontage, nullptr, 0.0f, CurrentTime).GetLocation();
 	}
 	
 	if (CurrentTime >= StartTime && CurrentTime <= EndTime)
@@ -112,7 +112,7 @@ void UAnimNotifyState_MHHitbox::DrawCanvasInEditor(FCanvas& Canvas, FSceneView& 
 
 void UAnimNotifyState_MHHitbox::DrawPreviewShape(FPrimitiveDrawInterface* PDI, const FVector& RootMotionOffset) const
 {
-	const FMatrix HitboxTransform = CachedPivotMatrix * FTransform(HitboxParameters.Position + RootMotionOffset).ToMatrixNoScale();
+	const FMatrix HitboxTransform = CachedPivotMatrix * FTransform(RootMotionOffset + HitboxParameters.Position).ToMatrixNoScale();
 	
 	switch (HitboxParameters.Shape)
 	{

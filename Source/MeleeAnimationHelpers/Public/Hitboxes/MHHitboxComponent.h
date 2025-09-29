@@ -30,7 +30,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	UShapeComponent* SpawnHitbox(const FMHHitboxParameters& HitboxParameters);
 
-	void DestroyHitbox(const UShapeComponent* Hitbox);
+	/**
+	 * Clear our list of actors, so we can register new hits
+	 */
+	UFUNCTION(BlueprintCallable)
+	void ClearHitActors();
+
+	void DestroyHitbox(UShapeComponent* Hitbox);
 
 	virtual UShapeComponent* SpawnHitbox_Implementation(const FMHHitboxParameters& HitboxParameters);
 
