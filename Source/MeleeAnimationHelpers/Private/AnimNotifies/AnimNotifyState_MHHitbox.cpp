@@ -24,7 +24,7 @@ void UAnimNotifyState_MHHitbox::NotifyBegin(USkeletalMeshComponent* MeshComp, UA
 	if (!HitboxComponent)
 	{
 		UE_LOGFMT(MeleeAnimationHelpers, Warning,
-			"Failed to spawn hitbox on Notify Begin for animation '{}'. Actor '{}' did not have a valid MHHitboxComponent.",
+			"Failed to spawn hitbox on Notify Begin for animation '{AnimationName}'. Actor '{ActorName}' did not have a valid MHHitboxComponent.",
 			GetNameSafe(Animation), GetNameSafe(Owner));
 		return;
 	}
@@ -47,7 +47,7 @@ void UAnimNotifyState_MHHitbox::NotifyEnd(USkeletalMeshComponent* MeshComp, UAni
 	if (!HitboxComponent)
 	{
 		UE_LOGFMT(MeleeAnimationHelpers, Warning,
-			"Failed to destroy hitbox on Notify End for animation '{}'. Actor '{}' did not have a valid MHHitboxComponent.",
+			"Failed to destroy hitbox on Notify End for animation '{AnimationName}'. Actor '{ActorName}' did not have a valid MHHitboxComponent.",
 			GetNameSafe(Animation), GetNameSafe(Owner));
 		return;
 	}
