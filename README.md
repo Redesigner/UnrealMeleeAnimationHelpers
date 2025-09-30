@@ -1,5 +1,8 @@
 # UnrealMeleeAnimationHelpers
-A plugin for unreal that sets up a basic melee hitbox system, with editor visualization
+A plugin for unreal that sets up a basic melee hitbox system, with editor visualization.
+Works so you can scrub through hitbox notifies in realtime, in the editor!
+
+[MeleeAnimationHelpersPreview.webm](https://github.com/user-attachments/assets/f8874490-1662-4ec4-9bf7-ce3eed557666)
 
 ## Included Components
 * Melee Helper Hitbox Component - Listener for animation notifies
