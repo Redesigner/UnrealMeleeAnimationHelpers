@@ -8,9 +8,9 @@
 #include "AnimNotifyState_MHHitbox.generated.h"
 
 /**
- * 
+ * An Anim Notify that spawns a hitbox if the owning Actor has a MHHitboxComponent
  */
-UCLASS()
+UCLASS(DisplayName = "Hitbox State")
 class MELEEANIMATIONHELPERS_API UAnimNotifyState_MHHitbox : public UAnimNotifyState
 {
 	GENERATED_BODY()
@@ -19,9 +19,11 @@ class MELEEANIMATIONHELPERS_API UAnimNotifyState_MHHitbox : public UAnimNotifySt
 	FMHHitboxParameters HitboxParameters;
 
 #if WITH_EDITORONLY_DATA
+	/// Color to draw the hitbox as in the engine
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Display, Meta = (AllowPrivateAccess))
 	FColor HitboxDisplayColor = FColor::Red;
 
+	/// Draw the origin as RGB axes?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Display, Meta = (AllowPrivateAccess))
 	bool bShowOriginInEditor = true;
 #endif

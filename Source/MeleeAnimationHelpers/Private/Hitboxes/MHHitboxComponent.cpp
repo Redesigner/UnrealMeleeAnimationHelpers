@@ -31,9 +31,19 @@ void UMHHitboxComponent::HandleHitboxOverlap(UPrimitiveComponent* OverlappedComp
 void UMHHitboxComponent::ClearHitActors()
 {
 	HitObjects.Reset();
+
+	for (const auto& Hitbox : SpawnedHitboxes)
+	{
+		TArray<UPrimitiveComponent*> OverlappingComponents;
+		Hitbox->GetOverlappingComponents(OverlappingComponents);
+		for (const auto& OverlappingComponent : OverlappingComponents)
+		{
+			HandleHitboxOverlap(Hitbox.Get(), OverlappingComponent->GetOwner(), OverlappingComponent, 0, false, FHitResult());
+		}
+	}
 }
 
-void UMHHitboxComponent::DestroyHitbox(UShapeComponent* Hitbox)
+void UMHHitboxComponent::DestroyHitbox_Implementation(UShapeComponent* Hitbox)
 {
 	if (!Hitbox)
 	{
@@ -88,14 +98,14 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	{
 	case Box:
 		{
-			UBoxComponent* Box = NewObject<UBoxComponent>(this, "Hitbox");
+			UBoxComponent* Box = NewObject<UBoxComponent>(this);
 			Box->SetBoxExtent(HitboxParameters.BoxExtents);
 			SpawnedShape = Box;
 			break;
 		}
 	case Capsule:
 		{
-			UCapsuleComponent* Capsule = NewObject<UCapsuleComponent>(this, "Hitbox");
+			UCapsuleComponent* Capsule = NewObject<UCapsuleComponent>(this);
 			Capsule->SetCapsuleRadius(HitboxParameters.Radius);
 			Capsule->SetCapsuleHalfHeight(HitboxParameters.HalfHeight);
 			SpawnedShape = Capsule;
@@ -104,7 +114,7 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	default:
 	case Sphere:
 		{
-			USphereComponent* Sphere = NewObject<USphereComponent>(this, "Hitbox");
+			USphereComponent* Sphere = NewObject<USphereComponent>(this);
 			Sphere->SetSphereRadius(HitboxParameters.Radius);
 			SpawnedShape = Sphere;
 			break;
