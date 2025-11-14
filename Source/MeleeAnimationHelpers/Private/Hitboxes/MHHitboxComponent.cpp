@@ -126,15 +126,13 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	FMatrix HitboxTransformMatrix = CalculatePivotMatrix(HitboxParameters);
 	SpawnedShape->SetRelativeLocationAndRotation(HitboxTransformMatrix.TransformPosition(FVector::ZeroVector) + HitboxParameters.Position, HitboxTransformMatrix.Rotator());
 	
-	// Set the collision type, but make the object type dynamic
+	// Set the collision type
 	SpawnedShape->SetCollisionProfileName(CollisionProfile.Name);
-	SpawnedShape->SetCollisionObjectType(ECC_WorldDynamic);
 	SpawnedShape->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::HandleHitboxOverlap);
 	
 	// Even though this ignores moving, it also works for the registration function later
 	SpawnedShape->IgnoreActorWhenMoving(GetOwner(), true);
 	SpawnedShape->SetHiddenInGame(false);
-	SpawnedShape->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SpawnedShape->SetVisibility(bShowHitboxes);
 
 	// Overlaps are automatically updated here
