@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class MeleeAnimationHelpers : ModuleRules
+public class MeleeAnimationHelpersEditor : ModuleRules
 {
-	public MeleeAnimationHelpers(ReadOnlyTargetRules Target) : base(Target)
+	public MeleeAnimationHelpersEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -25,7 +25,8 @@ public class MeleeAnimationHelpers : ModuleRules
 			{
 				"Core",
 				"Engine",
-				"DeveloperSettings"
+				"DeveloperSettings",
+				"PropertyEditor"
 			}
 			);
 			
@@ -37,6 +38,7 @@ public class MeleeAnimationHelpers : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"MeleeAnimationHelpers"
 			}
 			);
 		

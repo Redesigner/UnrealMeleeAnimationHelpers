@@ -15,6 +15,7 @@ class MELEEANIMATIONHELPERS_API UMHHitboxComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision, meta = (AllowPrivateAccess = true))
 	FCollisionProfileName CollisionProfile;
 
@@ -61,13 +62,32 @@ public:
 private:
 	UMHHitboxComponent();
 
+	virtual void BeginPlay() override;
+	
 	UFUNCTION()
 	void HandleHitboxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	virtual UShapeComponent* SpawnHitbox_Implementation(const FMHHitboxParameters& HitboxParameters);
 	virtual void DestroyHitbox_Implementation(UShapeComponent* Hitbox);
+
+	/**
+	 * Determine which scene component to use as the attachment parent for the hitboxes.
+	 * In order of priority, selects the Skeletal Mesh of the character (if the parent actor is a character),
+	 * then the first found Skeletal Mesh,
+	 * then the root component.
+	 * Override this if you want to change the way the Hitbox Component selects the attachment.
+	 * By default, this is called once in BeginPlay.
+	 * @return The scene component to use as the hitbox attachment
+	 */
+	virtual USceneComponent* SelectHitboxAttachment() const;
 	
 	TArray<TWeakObjectPtr<UShapeComponent>> SpawnedHitboxes;
+
+	/** 
+	 * Cached value for storing our calculated hitbox attachment.
+	 * This is normally set in BeginPlay, by calling SelectHitboxAttachment.
+	 */
+	TWeakObjectPtr<USceneComponent> HitboxOrigin;
 
 	TArray<FObjectKey> HitObjects;
 };

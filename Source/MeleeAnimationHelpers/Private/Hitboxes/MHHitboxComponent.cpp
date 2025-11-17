@@ -3,20 +3,30 @@
 
 #include "Hitboxes/MHHitboxComponent.h"
 
+#include "MeleeAnimationHelpers.h"
+#include "MeleeAnimationHelpers_Settings.h"
 #include "Hitboxes/MHHitboxParameters.h"
 
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
+#include "Logging/StructuredLog.h"
 
 
 UMHHitboxComponent::UMHHitboxComponent()
 {
 }
 
+void UMHHitboxComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	HitboxOrigin = SelectHitboxAttachment();
+}
+
 void UMHHitboxComponent::HandleHitboxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	const FObjectKey HitActor = FObjectKey(OtherActor);
 	if (HitObjects.Contains(HitActor))
@@ -69,26 +79,52 @@ void UMHHitboxComponent::DestroyHitbox_Implementation(UShapeComponent* Hitbox)
 	Hitbox->DestroyComponent();
 }
 
-UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxParameters& HitboxParameters)
+USceneComponent* UMHHitboxComponent::SelectHitboxAttachment() const
 {
 	const AActor* Owner = GetOwner();
 	if (!Owner)
 	{
+		UE_LOGFMT(MeleeAnimationHelpers, Error, "Melee hitbox component '{HitboxComponentName}': does not have a valid owner.", GetNameSafe(this));
 		return nullptr;
 	}
 	
-	USkeletalMeshComponent* SkeletalMesh;
 	if (const ACharacter* Character = Cast<ACharacter>(Owner))
 	{
-		SkeletalMesh = Character->GetMesh();
+		if (USkeletalMeshComponent* SkeletalMeshComponent = Character->GetMesh())
+		{
+			return SkeletalMeshComponent;	
+		}
 	}
-	else
+
+	if (USkeletalMeshComponent* FirstFoundSkeletalMesh = Owner->FindComponentByClass<USkeletalMeshComponent>())
 	{
-		SkeletalMesh = Owner->FindComponentByClass<USkeletalMeshComponent>();
+		return FirstFoundSkeletalMesh;
+	}
+
+	if (GetDefault<UMeleeAnimationHelpers_Settings>()->GetWarnOnRootComponentFallback())
+	{
+		UE_LOGFMT(MeleeAnimationHelpers, Warning, "Melee hitbox component '{HitboxComponentName}': could not find a valid skeletal mesh in '{OwnerActorName}',"
+			" and OverrideAttachment was either not set, or was invalid. Falling back to Root Component.",
+			GetNameSafe(this), GetNameSafe(Owner));
 	}
 	
-	if (!SkeletalMesh)
+	if (USceneComponent* RootComponent = Owner->GetRootComponent())
 	{
+		return RootComponent;
+	}
+
+	UE_LOGFMT(MeleeAnimationHelpers, Error, "Melee hitbox component '{HitboxComponentName}': Owning actor '{OwnerActorName}'"
+		" does not have a valid root component.",
+		GetNameSafe(this), GetNameSafe(Owner));
+	return nullptr;
+}
+
+UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxParameters& HitboxParameters)
+{	
+	if (!HitboxOrigin.IsValid())
+	{
+		UE_LOGFMT(MeleeAnimationHelpers, Error, "Melee hitbox component '{HitboxComponentName}: Could not find a valid origin. "
+			"The hitbox will not be spawned.'", GetNameSafe(this));
 		return nullptr;
 	}
 	
@@ -122,8 +158,8 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	}
 	SpawnedShape->SetGenerateOverlapEvents(true);
 	const FAttachmentTransformRules AttachmentTransformRules = FAttachmentTransformRules::SnapToTargetIncludingScale;
-	SpawnedShape->AttachToComponent(SkeletalMesh, AttachmentTransformRules);
-	FMatrix HitboxTransformMatrix = CalculatePivotMatrix(HitboxParameters);
+	SpawnedShape->AttachToComponent(HitboxOrigin.Get(), AttachmentTransformRules);
+	const FMatrix HitboxTransformMatrix = CalculatePivotMatrix(HitboxParameters);
 	SpawnedShape->SetRelativeLocationAndRotation(HitboxTransformMatrix.TransformPosition(FVector::ZeroVector) + HitboxParameters.Position, HitboxTransformMatrix.Rotator());
 	
 	// Set the collision type
@@ -136,6 +172,7 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	SpawnedShape->SetVisibility(bShowHitboxes);
 
 	// Overlaps are automatically updated here
+	SpawnedShape->UpdateOverlaps();
 	SpawnedShape->RegisterComponentWithWorld(GetWorld());
 
 	SpawnedHitboxes.AddUnique(SpawnedShape);
