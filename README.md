@@ -13,3 +13,13 @@ Works so you can scrub through hitbox notifies in realtime, in the editor!
 * Add a Melee Helper Hitbox Component to your actor
 * Insert animation notify states for each hitbox
 * When your animation is done, either from the animation itself or code, call Hitbox Clear, to clear the list of overlapped actors from your Helper Hitbox Component
+
+## Working with C++
+If you're working with C++, and want to subclass the Anim Notify States, add "MeleeAnimationHelpers" to your PublicDependencyModuleNames in your Build.cs file. It should look something like this:
+```
+PublicDependencyModuleNames.AddRange(new string[]
+{
+  ...
+  "MeleeAnimationHelpers"
+});
+```
