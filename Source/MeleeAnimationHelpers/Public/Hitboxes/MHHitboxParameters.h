@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
+#include "InstancedStruct.h"
+#include "StructUtils/InstancedStruct.h"
 #include "MHHitboxParameters.generated.h"
 
 UENUM()
@@ -46,4 +47,8 @@ struct MELEEANIMATIONHELPERS_API FMHHitboxParameters
 	/// Box half extents
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "Shape == 0", EditConditionHides, ClampMin = 0.0f))
 	FVector BoxExtents = FVector::ZeroVector;
+	
+	/// Optional payload for including whatever you want
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FInstancedStruct Payload;
 };

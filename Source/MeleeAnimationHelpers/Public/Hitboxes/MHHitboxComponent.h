@@ -22,7 +22,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Collision, meta = (AllowPrivateAccess = true))
 	bool bShowHitboxes = false;
 	
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHitboxOverlapped, UPrimitiveComponent*, OverlappedHitbox, UPrimitiveComponent*, OtherComponent, AActor*, OtherActor);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHitboxOverlapped, UPrimitiveComponent*, OverlappedHitbox, UPrimitiveComponent*,
+		OtherComponent, AActor*, OtherActor, FInstancedStruct, OptionalData);
 
 public:
 	/** Event called when a hitbox is overlapped by another component. This event will not fire
@@ -82,6 +83,8 @@ private:
 	virtual USceneComponent* SelectHitboxAttachment() const;
 	
 	TArray<TWeakObjectPtr<UShapeComponent>> SpawnedHitboxes;
+	
+	TMap<FObjectKey, FInstancedStruct> HitboxOptionalData;
 
 	/** 
 	 * Cached value for storing our calculated hitbox attachment.

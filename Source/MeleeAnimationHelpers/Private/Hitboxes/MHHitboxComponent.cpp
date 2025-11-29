@@ -26,16 +26,25 @@ void UMHHitboxComponent::BeginPlay()
 }
 
 void UMHHitboxComponent::HandleHitboxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	const FObjectKey HitActor = FObjectKey(OtherActor);
 	if (HitObjects.Contains(HitActor))
 	{
 		return;
 	}
-
+	
 	HitObjects.Add(HitActor);
-	OnHitboxOverlapped.Broadcast(OverlappedComponent, OtherComp, OtherActor);
+
+	if (const FInstancedStruct* OptionalData = HitboxOptionalData.Find(OverlappedComponent))
+	{
+		OnHitboxOverlapped.Broadcast(OverlappedComponent, OtherComp, OtherActor, *OptionalData);
+	}
+	else
+	{
+		OnHitboxOverlapped.Broadcast(OverlappedComponent, OtherComp, OtherActor, FInstancedStruct());
+	}
+	
 }
 
 void UMHHitboxComponent::ClearHitActors()
@@ -63,10 +72,12 @@ void UMHHitboxComponent::DestroyHitbox_Implementation(UShapeComponent* Hitbox)
 	bool OwnsHitbox = false;
 	for (int i = SpawnedHitboxes.Num() - 1; i >= 0; --i)
 	{
-		if (SpawnedHitboxes[i].Get() == Hitbox)
+		UShapeComponent* SpawnedHitbox = SpawnedHitboxes[i].Get();
+		if (SpawnedHitbox == Hitbox)
 		{
 			OwnsHitbox = true;
 			SpawnedHitboxes.RemoveAt(i);
+			HitboxOptionalData.Remove(SpawnedHitbox);
 			break;
 		}
 	}
@@ -176,6 +187,12 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	SpawnedShape->RegisterComponentWithWorld(GetWorld());
 
 	SpawnedHitboxes.AddUnique(SpawnedShape);
+	
+	if (HitboxParameters.Payload.IsValid())
+	{
+		HitboxOptionalData.Add(SpawnedShape, HitboxParameters.Payload);
+	}
+	
 	return SpawnedShape;
 }
 
