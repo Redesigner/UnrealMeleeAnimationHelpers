@@ -8,6 +8,7 @@ Works so you can scrub through hitbox notifies in realtime, in the editor!
 * Melee Helper Hitbox Component - Listener for animation notifies
 * Hitbox Anim Notify State - Add hitboxes to animation
 * Hitbox Anim Clear - Reset the list of overlapped actors and rechecks for overlaps
+* Hitbox Attack Notify State - Alternative method for handling overlapping actors, to function better with blends and animation cancels
 
 ## How to use
 * Add a Melee Helper Hitbox Component to your actor
