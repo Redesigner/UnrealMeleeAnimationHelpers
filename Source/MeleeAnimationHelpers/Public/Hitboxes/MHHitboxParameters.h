@@ -48,6 +48,12 @@ struct MELEEANIMATIONHELPERS_API FMHHitboxParameters
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "Shape == 0", EditConditionHides, ClampMin = 0.0f))
 	FVector BoxExtents = FVector::ZeroVector;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint8 Priority = 0;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName BoneAttachment;
+	
 	/// Optional payload for including whatever you want
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FInstancedStruct Payload;

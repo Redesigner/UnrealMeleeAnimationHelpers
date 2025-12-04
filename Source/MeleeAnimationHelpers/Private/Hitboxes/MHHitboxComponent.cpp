@@ -169,7 +169,7 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	}
 	SpawnedShape->SetGenerateOverlapEvents(true);
 	const FAttachmentTransformRules AttachmentTransformRules = FAttachmentTransformRules::SnapToTargetIncludingScale;
-	SpawnedShape->AttachToComponent(HitboxOrigin.Get(), AttachmentTransformRules);
+	SpawnedShape->AttachToComponent(HitboxOrigin.Get(), AttachmentTransformRules, HitboxParameters.BoneAttachment);
 	const FMatrix HitboxTransformMatrix = CalculatePivotMatrix(HitboxParameters);
 	SpawnedShape->SetRelativeLocationAndRotation(HitboxTransformMatrix.TransformPosition(FVector::ZeroVector) + HitboxParameters.Position, HitboxTransformMatrix.Rotator());
 	

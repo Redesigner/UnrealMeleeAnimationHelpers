@@ -100,7 +100,7 @@ void UAnimNotifyState_MHHitbox::DrawInEditor(FPrimitiveDrawInterface* PDI, USkel
 	
 	if (CurrentTime >= StartTime && CurrentTime <= EndTime)
 	{
-		DrawPreviewShape(PDI, CurrentPosition);
+		DrawPreviewShape(PDI, CurrentPosition, MeshComp);
 	}
 }
 
@@ -110,20 +110,39 @@ void UAnimNotifyState_MHHitbox::DrawCanvasInEditor(FCanvas& Canvas, FSceneView& 
 	Super::DrawCanvasInEditor(Canvas, View, MeshComp, Animation, NotifyEvent);
 }
 
-void UAnimNotifyState_MHHitbox::DrawPreviewShape(FPrimitiveDrawInterface* PDI, const FVector& RootMotionOffset) const
+void UAnimNotifyState_MHHitbox::DrawPreviewShape(FPrimitiveDrawInterface* PDI, const FVector& RootMotionOffset, const USkeletalMeshComponent* MeshComp) const
 {
-	const FMatrix HitboxTransform = CachedPivotMatrix * FTransform(RootMotionOffset + HitboxParameters.Position).ToMatrixNoScale();
+	FMatrix HitboxTransform;
+	FMatrix BoneTransform;
+	bool FoundBone = false;
+	if (!HitboxParameters.BoneAttachment.IsNone())
+	{
+		if (const int BoneIndex = MeshComp->GetBoneIndex(HitboxParameters.BoneAttachment); BoneIndex != INDEX_NONE)
+		{
+			BoneTransform = MeshComp->GetBoneTransform(BoneIndex).ToMatrixNoScale();
+			HitboxTransform = CachedPivotMatrix * FTransform(RootMotionOffset + HitboxParameters.Position).ToMatrixNoScale() * BoneTransform;
+			FoundBone = true;
+		}
+	}
+	
+	if (!FoundBone)
+	{
+		HitboxTransform = CachedPivotMatrix * FTransform(RootMotionOffset + HitboxParameters.Position).ToMatrixNoScale();
+	}
 	
 	switch (HitboxParameters.Shape)
 	{
 	default:
 		break;
+		
 	case Sphere:
 		MHDrawingHelpers::DrawSphereHitbox(PDI, HitboxParameters.Radius, HitboxDisplayColor, HitboxTransform);
 		break;
+		
 	case Box:
 		MHDrawingHelpers::DrawBox(PDI, HitboxParameters.BoxExtents, HitboxDisplayColor, HitboxTransform);
 		break;
+		
 	case Capsule:
 		MHDrawingHelpers::DrawCapsuleHitbox(PDI, HitboxParameters.Radius, HitboxParameters.HalfHeight, HitboxDisplayColor, HitboxTransform);
 		break;
@@ -131,7 +150,16 @@ void UAnimNotifyState_MHHitbox::DrawPreviewShape(FPrimitiveDrawInterface* PDI, c
 	
 	if (bShowOriginInEditor)
 	{
-		DrawCoordinateSystem(PDI, RootMotionOffset + HitboxParameters.Position + HitboxParameters.OriginOffset, HitboxParameters.Rotation, 25.0f, SDPG_Foreground);
+		if (FoundBone)
+		{
+			DrawCoordinateSystem(PDI,
+				RootMotionOffset + BoneTransform.TransformPosition(HitboxParameters.Position + HitboxParameters.OriginOffset),
+				(BoneTransform.Rotator().Quaternion() * HitboxParameters.Rotation.Quaternion()).Rotator(), 25.0f, SDPG_Foreground);	
+		}
+		else
+		{
+			DrawCoordinateSystem(PDI, RootMotionOffset + HitboxParameters.Position + HitboxParameters.OriginOffset, HitboxParameters.Rotation, 25.0f, SDPG_Foreground);
+		}
 	}
 }
 #endif

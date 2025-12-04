@@ -49,7 +49,7 @@ class MELEEANIMATIONHELPERS_API UAnimNotifyState_MHHitbox : public UAnimNotifySt
 	virtual void DrawCanvasInEditor(FCanvas& Canvas, FSceneView& View, USkeletalMeshComponent* MeshComp,
 		const UAnimSequenceBase* Animation, const FAnimNotifyEvent& NotifyEvent) const override;
 
-	void DrawPreviewShape(FPrimitiveDrawInterface* PDI, const FVector& RootMotionOffset) const;
+	void DrawPreviewShape(FPrimitiveDrawInterface* PDI, const FVector& RootMotionOffset, const USkeletalMeshComponent* MeshComp) const;
 #endif
 
 	TWeakObjectPtr<UShapeComponent> SpawnedHitbox;
