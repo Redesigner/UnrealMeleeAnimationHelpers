@@ -24,3 +24,7 @@ PublicDependencyModuleNames.AddRange(new string[]
   "MeleeAnimationHelpers"
 });
 ```
+
+## Template project
+If you would like to see how the project is used, there is a [work-in-progress template project](https://github.com/Redesigner/UnrealMeleeAnimationHelpersTemplate), showing the basics of what you can do with this plugin!
+It is free to download and modify, and will be a staging environment for testing plugin features.
