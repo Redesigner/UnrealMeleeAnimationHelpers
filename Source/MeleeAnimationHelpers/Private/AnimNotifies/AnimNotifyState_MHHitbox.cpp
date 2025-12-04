@@ -152,6 +152,7 @@ void UAnimNotifyState_MHHitbox::DrawPreviewShape(FPrimitiveDrawInterface* PDI, c
 	{
 		if (FoundBone)
 		{
+			// The math here is... not great, but should be okay for most use cases
 			DrawCoordinateSystem(PDI,
 				RootMotionOffset + BoneTransform.TransformPosition(HitboxParameters.Position + HitboxParameters.OriginOffset),
 				(BoneTransform.Rotator().Quaternion() * HitboxParameters.Rotation.Quaternion()).Rotator(), 25.0f, SDPG_Foreground);	
