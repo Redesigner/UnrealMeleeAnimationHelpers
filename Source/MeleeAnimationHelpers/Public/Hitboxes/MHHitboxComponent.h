@@ -36,8 +36,8 @@ public:
 
 	/**
 	 * Spawns a hitbox with the given parameters.
-	 * Override to change spawning behavior
-	 * @param HitboxParameters 
+	 * Override to change spawning behavior.
+	 * @param HitboxParameters packed parameter struct.
 	 * @return Expects a pointer to the hitbox that was just spawned
 	 */
 	UFUNCTION(BlueprintNativeEvent)
@@ -58,13 +58,30 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void DestroyHitbox(UShapeComponent* Hitbox);
 
+	/**
+	 * Compute a matrix from given hitbox parameters. Transformation matrix is rotated around the given
+	 * origin offset, in local space.
+	 * @param HitboxParameters Hitbox parameters to convert into a matrix.
+	 * @return Matrix transformed around the new origin
+	 */
 	static FMatrix CalculatePivotMatrix(const FMHHitboxParameters& HitboxParameters);
 	
 protected:
 	UMHHitboxComponent();
 
 	virtual void BeginPlay() override;
-	
+
+	/**
+	 * Hook for the individual shape component overlap function.
+	 * By default, checks to see if the other actor has been hit before calling OnHitboxOverlapped,
+	 * and looks up the relevant optional parameters from the optional data map.
+	 * @param OverlappedComponent Owned component that was overlapped. Will always be a spawned hitbox.
+	 * @param OtherActor Actor that was overlapped. Will not fire if this has already been hit.
+	 * @param OtherComp Required delegate param
+	 * @param OtherBodyIndex Required delegate param
+	 * @param bFromSweep Required delegate param
+	 * @param SweepResult Required delegate param
+	 */
 	UFUNCTION()
 	virtual void HandleHitboxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -81,9 +98,19 @@ protected:
 	 * @return The scene component to use as the hitbox attachment
 	 */
 	virtual USceneComponent* SelectHitboxAttachment() const;
-	
+
+	/**
+	 * The hitboxes that are currently "owned" by this component. Stored
+	 * as weak pointers, because there is no guarantee that they won't be destroyed by
+	 * something else
+	 */
 	TArray<TWeakObjectPtr<UShapeComponent>> SpawnedHitboxes;
-	
+
+	/**
+	 * Map associating individual hitboxes with their optional data.
+	 * Data is stored here instead of in the components themselves, so they
+	 * can still be base primitive components.
+	 */
 	TMap<FObjectKey, FInstancedStruct> HitboxOptionalData;
 
 	/** 
@@ -92,5 +119,10 @@ protected:
 	 */
 	TWeakObjectPtr<USceneComponent> HitboxOrigin;
 
+	/**
+	 * Array of all objects that have been hit by an owned hitbox.
+	 * Usually, this list is cleared by either reaching the end of
+	 * an Attack Anim Notify state, or a clear hit Anim Notify
+	 */
 	TArray<FObjectKey> HitObjects;
 };

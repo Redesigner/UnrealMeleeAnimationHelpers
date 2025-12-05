@@ -35,8 +35,11 @@ class MELEEANIMATIONHELPERS_API UMHHitboxPriorityComponent : public UMHHitboxCom
 	virtual void HandleHitboxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	/**
+	 * Process the overlaps that have occurred, first sorting them by priority
+	 */
 	void ProcessPendingOverlaps();
 	
 	TArray<FPendingHitboxOverlap> PendingHitboxOverlaps;

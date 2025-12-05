@@ -35,15 +35,9 @@ void UMHHitboxComponent::HandleHitboxOverlap(UPrimitiveComponent* OverlappedComp
 	}
 	
 	HitObjects.Add(HitActor);
-
-	if (const FInstancedStruct* OptionalData = HitboxOptionalData.Find(OverlappedComponent))
-	{
-		OnHitboxOverlapped.Broadcast(OverlappedComponent, OtherComp, OtherActor, *OptionalData);
-	}
-	else
-	{
-		OnHitboxOverlapped.Broadcast(OverlappedComponent, OtherComp, OtherActor, FInstancedStruct());
-	}
+	const FInstancedStruct* OptionalData = HitboxOptionalData.Find(OverlappedComponent);
+	check(OptionalData);
+	OnHitboxOverlapped.Broadcast(OverlappedComponent, OtherComp, OtherActor, *OptionalData);
 	
 }
 
@@ -72,8 +66,7 @@ void UMHHitboxComponent::DestroyHitbox_Implementation(UShapeComponent* Hitbox)
 	bool OwnsHitbox = false;
 	for (int i = SpawnedHitboxes.Num() - 1; i >= 0; --i)
 	{
-		UShapeComponent* SpawnedHitbox = SpawnedHitboxes[i].Get();
-		if (SpawnedHitbox == Hitbox)
+		if (UShapeComponent* SpawnedHitbox = SpawnedHitboxes[i].Get(); SpawnedHitbox == Hitbox)
 		{
 			OwnsHitbox = true;
 			SpawnedHitboxes.RemoveAt(i);
@@ -187,11 +180,7 @@ UShapeComponent* UMHHitboxComponent::SpawnHitbox_Implementation(const FMHHitboxP
 	SpawnedShape->RegisterComponentWithWorld(GetWorld());
 
 	SpawnedHitboxes.AddUnique(SpawnedShape);
-	
-	if (HitboxParameters.Payload.IsValid())
-	{
-		HitboxOptionalData.Add(SpawnedShape, HitboxParameters.Payload);
-	}
+	HitboxOptionalData.Add(SpawnedShape, HitboxParameters.Payload);
 	
 	return SpawnedShape;
 }
