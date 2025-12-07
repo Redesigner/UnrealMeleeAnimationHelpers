@@ -23,7 +23,7 @@ protected:
 	bool bShowHitboxes = false;
 	
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHitboxOverlapped, UPrimitiveComponent*, OverlappedHitbox, UPrimitiveComponent*,
-		OtherComponent, AActor*, OtherActor, FInstancedStruct, OptionalData);
+		OtherComponent, AActor*, OtherActor, const FInstancedStruct&, OptionalData);
 
 public:
 	/** Event called when a hitbox is overlapped by another component. This event will not fire
