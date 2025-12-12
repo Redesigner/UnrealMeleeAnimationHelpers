@@ -191,3 +191,8 @@ FMatrix UMHHitboxComponent::CalculatePivotMatrix(const FMHHitboxParameters& Hitb
 	const FMatrix InversePivotTransform = FTransform(HitboxParameters.OriginOffset).ToMatrixNoScale();
 	return PivotTransform * HitboxParameters.Rotation.Quaternion().ToMatrix() * InversePivotTransform;
 }
+
+bool UMHHitboxComponent::HasLiveHitboxes()
+{
+	return SpawnedHitboxes.Num() > 0;
+}

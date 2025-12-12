@@ -66,6 +66,13 @@ public:
 	 */
 	static FMatrix CalculatePivotMatrix(const FMHHitboxParameters& HitboxParameters);
 	
+	/**
+	 * Determines if we have any live hitboxes in play
+	 * @return true if we have any live hitboxes, false if not
+	 */
+	UFUNCTION(BlueprintCallable)
+	bool HasLiveHitboxes();
+	
 protected:
 	UMHHitboxComponent();
 
