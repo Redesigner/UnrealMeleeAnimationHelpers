@@ -18,5 +18,9 @@ class MELEEANIMATIONHELPERS_API UAnimNotify_MHClear : public UAnimNotify
 	virtual bool ShouldFireInEditor() override { return false; }
 #endif
 
+	/// If true, any current overlaps are retriggered when the Clear occurs
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Retriggering, Meta = (AllowPrivateAccess))
+	bool RetriggerOverlaps = true;
+	
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

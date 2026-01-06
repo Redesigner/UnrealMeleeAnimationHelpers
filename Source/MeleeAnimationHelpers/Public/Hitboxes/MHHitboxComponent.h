@@ -48,7 +48,7 @@ public:
 	 * Will automatically check for any currently existing overlaps
 	 */
 	UFUNCTION(BlueprintCallable)
-	void ClearHitActors();
+	void ClearHitActors(bool UpdateOverlaps);
 
 	/**
 	 * Remove a hitbox from the skeletal mesh. Only removes hitboxes

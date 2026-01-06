@@ -41,17 +41,20 @@ void UMHHitboxComponent::HandleHitboxOverlap(UPrimitiveComponent* OverlappedComp
 	
 }
 
-void UMHHitboxComponent::ClearHitActors()
+void UMHHitboxComponent::ClearHitActors(bool UpdateOverlaps)
 {
 	HitObjects.Reset();
 
-	for (const auto& Hitbox : SpawnedHitboxes)
+	if (UpdateOverlaps)
 	{
-		TArray<UPrimitiveComponent*> OverlappingComponents;
-		Hitbox->GetOverlappingComponents(OverlappingComponents);
-		for (const auto& OverlappingComponent : OverlappingComponents)
+		for (const auto& Hitbox : SpawnedHitboxes)
 		{
-			HandleHitboxOverlap(Hitbox.Get(), OverlappingComponent->GetOwner(), OverlappingComponent, 0, false, FHitResult());
+			TArray<UPrimitiveComponent*> OverlappingComponents;
+			Hitbox->GetOverlappingComponents(OverlappingComponents);
+			for (const auto& OverlappingComponent : OverlappingComponents)
+			{
+				HandleHitboxOverlap(Hitbox.Get(), OverlappingComponent->GetOwner(), OverlappingComponent, 0, false, FHitResult());
+			}
 		}
 	}
 }

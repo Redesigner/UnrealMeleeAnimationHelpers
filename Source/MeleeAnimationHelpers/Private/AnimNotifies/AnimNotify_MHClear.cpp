@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright (c) 2025 sleepysunset
 
 
 #include "AnimNotifies/AnimNotify_MHClear.h"
@@ -8,7 +8,7 @@
 #include "Logging/StructuredLog.h"
 
 void UAnimNotify_MHClear::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                 const FAnimNotifyEventReference& EventReference)
+								 const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
@@ -27,5 +27,5 @@ void UAnimNotify_MHClear::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
 		return;
 	}
 
-	HitboxComponent->ClearHitActors();	
+	HitboxComponent->ClearHitActors(RetriggerOverlaps);	
 }
