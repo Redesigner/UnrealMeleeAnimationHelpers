@@ -33,8 +33,8 @@ It is free to download and modify, and will be a staging environment for testing
 All contributors are welcome! If you have a feature request, feel free to email, message me, or open an issue. There are currently no issue templates, so write to your heart's content! I am currently doing manual pull requests, because this is a very small project.
 
 ## Additional contributors
-# People who have contributed, but not directly through git
+### People who have contributed, but not directly through git
 * Megan Fox @ Glass Bottom Games
 
-# Special Thanks
+### Special Thanks
 * Spencer Melnick
