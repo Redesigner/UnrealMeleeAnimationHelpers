@@ -52,17 +52,7 @@ void UAnimNotifyState_MHHitbox::NotifyEnd(USkeletalMeshComponent* MeshComp, UAni
 		return;
 	}
 
-	const TWeakObjectPtr<UShapeComponent>* Data = SpawnedHitboxes.Find(MeshComp);
-	if (!Data)
-	{
-		UE_LOGFMT(MeleeAnimationHelpers, Warning,
-			"Failed to destroy hitbox on Notify End for animation '{AnimationName}'."
-			"Could not find the associate notify instance data.",
-			GetNameSafe(Animation));
-		return;
-	}
-	
-	TWeakObjectPtr<UShapeComponent> SpawnedHitbox = *Data;
+	TWeakObjectPtr<UShapeComponent> SpawnedHitbox = SpawnedHitboxes.FindAndRemoveChecked(MeshComp);
 	if (!SpawnedHitbox.IsValid())
 	{
 		return;
