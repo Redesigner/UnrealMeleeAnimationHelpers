@@ -38,3 +38,4 @@ All contributors are welcome! If you have a feature request, feel free to email,
 
 ### Special Thanks
 * Spencer Melnick
+* Vivian Rosanthwyn
