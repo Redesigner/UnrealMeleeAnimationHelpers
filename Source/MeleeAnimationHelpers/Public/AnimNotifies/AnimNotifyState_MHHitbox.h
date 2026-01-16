@@ -52,5 +52,5 @@ class MELEEANIMATIONHELPERS_API UAnimNotifyState_MHHitbox : public UAnimNotifySt
 	void DrawPreviewShape(FPrimitiveDrawInterface* PDI, const FVector& RootMotionOffset, const USkeletalMeshComponent* MeshComp) const;
 #endif
 
-	TWeakObjectPtr<UShapeComponent> SpawnedHitbox;
+	TMap<FObjectKey, TWeakObjectPtr<UShapeComponent>> SpawnedHitboxes;
 };

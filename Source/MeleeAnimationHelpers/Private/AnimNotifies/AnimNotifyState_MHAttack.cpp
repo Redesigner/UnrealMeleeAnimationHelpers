@@ -26,5 +26,5 @@ void UAnimNotifyState_MHAttack::NotifyEnd(USkeletalMeshComponent* MeshComp, UAni
 		return;
 	}
 
-	HitboxComponent->ClearHitActors();	
+	HitboxComponent->ClearHitActors(false);	
 }

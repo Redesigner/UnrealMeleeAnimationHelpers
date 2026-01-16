@@ -29,7 +29,7 @@ void UAnimNotifyState_MHHitbox::NotifyBegin(USkeletalMeshComponent* MeshComp, UA
 		return;
 	}
 
-	SpawnedHitbox = MakeWeakObjectPtr(HitboxComponent->SpawnHitbox(HitboxParameters));
+	SpawnedHitboxes.Add(MeshComp, MakeWeakObjectPtr(HitboxComponent->SpawnHitbox(HitboxParameters)));
 }
 
 void UAnimNotifyState_MHHitbox::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -52,6 +52,17 @@ void UAnimNotifyState_MHHitbox::NotifyEnd(USkeletalMeshComponent* MeshComp, UAni
 		return;
 	}
 
+	const TWeakObjectPtr<UShapeComponent>* Data = SpawnedHitboxes.Find(MeshComp);
+	if (!Data)
+	{
+		UE_LOGFMT(MeleeAnimationHelpers, Warning,
+			"Failed to destroy hitbox on Notify End for animation '{AnimationName}'."
+			"Could not find the associate notify instance data.",
+			GetNameSafe(Animation));
+		return;
+	}
+	
+	TWeakObjectPtr<UShapeComponent> SpawnedHitbox = *Data;
 	if (!SpawnedHitbox.IsValid())
 	{
 		return;
